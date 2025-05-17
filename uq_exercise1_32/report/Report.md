@@ -3,7 +3,7 @@
 # Team Members
 Diana Deldar Abdolmaleki - 03732135
 Maximilian Fehrentz - <Insert Matrikel>
-Matteo Wohlrapp - <Insert Matrikel>
+Matteo Wohlrapp - 03727946
 
 # 1. Introduction to Monte Carlo sampling estimator
 
@@ -57,11 +57,39 @@ N = 10000: rmse [0.014099356134083894, 0.010045545236243444]
 TODO: Insert plots (see "report/12_abs_errors.png", "report/12_rmse_errors.png")
 TODO: Answer "Can we use the same formula for the covariance estimator?".
 
-# 2. Monte Carlo integration
+# 2. Monte Carlo Integration
 
 ## Assignment 2.1
 
+![Assignment 2.1 RMSE and exact error plot](21_rmse_exact_error.png)
+
+We can see that the RMSE decays linearly on a log-log plot, reflecting the theoretical convergence rate `O(1/√N)`. RMSE is relatively smooth because it's derived from the sample standard deviation — a second-moment statistic, which is less sensitive to individual sample fluctuations. It serves as a reliable estimate for how much we expect the MC result to deviate from the true integral value on average.
+
+In contrast, the exact error plotted here represents the absolute difference between the Monte Carlo estimate and the true value of the integral for a single simulation:
+
+```
+Exact Error = |MC_Estimate - True_Integral|
+```
+
+This quantity fluctuates because it's tied to one specific set of random samples. Especially for small `N`, the error can vary significantly — sometimes underestimating and sometimes overestimating the true value — purely due to randomness. This is expected behavior and reflects the variance of the estimator.
+
+While the RMSE quantifies the expected error magnitude (i.e., the average over many possible runs), the exact error is just one realization and can be above or below the RMSE.
+
+Finally, it's worth noting that if a fixed random seed is used for each `N`, the samples for larger `N` are extensions of those from smaller `N` (e.g., `N=1000` includes the first 100 samples used in `N=100`). This can make the curve for RMSE appear smoother than it would if fully independent samples were used for each run. The same applies to the exact error — its path reflects one specific sampling trajectory.
+
 ## Assignment 2.2
+
+![Assignment 2.2 RMSE and exact error plot with transform](22_rmse_exact_error_with_transform.png)
+![Assignment 2.2 RMSE and exact error plot without transform](22_rmse_exact_error_wo_transform.png)
+
+We observe that the RMSE again decays linearly on the log-log plot, consistent with the expected convergence rate `O(1/√N)`. As in Assignment 2.1, the RMSE provides a smooth and reliable estimate of the expected error magnitude due to sampling variability.
+
+The exact error fluctuates for small sample sizes, which is expected for a single Monte Carlo realization. These fluctuations diminish as `N` increases, and the estimator stabilizes around the true integral.
+
+In this assignment, we compared two equivalent sampling approaches: sampling directly from `U(2, 4)` and transforming samples from `U(0, 1)` via `x = 2 + 2u`. Both methods yield nearly identical results for both RMSE and exact error, confirming that the transformation preserves the statistical properties of the estimator.
+
+The RMSE has the same interpretation as in Assignment 2.1. The only difference is the domain length `(b - a) = 2`, which scales both the estimate and its variability. The RMSE formula naturally incorporates this through the multiplicative factor in the estimator and the corresponding scaling in the variance. Therefore, RMSE still quantifies the expected deviation of the Monte Carlo estimate from the true value due to sampling randomness.
+
 
 # 3. Improving standard Monte Carlo sampling
 
