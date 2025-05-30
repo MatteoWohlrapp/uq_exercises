@@ -106,27 +106,6 @@ if __name__ == "__main__":
     # Get reference values for y(10)
     mean_ref, var_ref = load_reference("data/oscillator_ref.txt")
 
-    # # Compute mean and variance of y(10) (last value in the time grid) for each method across the M runs
-    # mc_means = [] # shape (M, )
-    # mc_vars = [] # shape (M, )
-    # for sim_run in mc_solutions:
-    #     # sim_run is of shape (N, len(t_grid))
-    #     # want the mean/var of y(10) across all N outcomes that are based on different omega
-    #     y10s = sim_run[:, -1]
-    #     mean = np.mean(y10s)
-    #     var = np.var(y10s)
-    #     mc_means.append(mean)
-    #     mc_vars.append(var)
-    # quasi_mc_means = [] # shape (M, )
-    # quasi_mc_vars = [] # shape (M, )
-    # for sim_run in quasi_mc_solutions:
-    #     # sim_run is of shape (N, len(t_grid))
-    #     y10s = sim_run[:, -1]
-    #     mean = np.mean(y10s)
-    #     var = np.var(y10s)
-    #     quasi_mc_means.append(mean)
-    #     quasi_mc_vars.append(var)
-
     # Compare to ref
     errors_mc = [compute_errors(mc_solution, mean_ref, var_ref) for mc_solution in mc_solutions] # shape should be (M, 2)
     errors_quasi_mc = [compute_errors(quasi_mc_solution, mean_ref, var_ref) for quasi_mc_solution in quasi_mc_solutions] # shape should be (M, 2)

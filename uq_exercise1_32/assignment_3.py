@@ -17,13 +17,21 @@ def analytical_integral() -> float:
 def run_monte_carlo(Ns: list[int], seed: int = 42):
     # Run the Monte Carlo method and return the absolute error
     # of the estimation.
+
+    # Previous implementation, overlooked the import of monte_carlo from utils.sampling
+    # abs_errors = []
+    # for n in Ns:
+    #     samples = np.random.default_rng(seed).uniform(0, 1, n)
+    #     approx = 0
+    #     for sample in samples:
+    #         approx += f(sample)
+    #     approx /= n
+    #     abs_errors.append(np.abs(approx - analytical_integral()))
+    # return abs_errors
+    
     abs_errors = []
     for n in Ns:
-        samples = np.random.default_rng(seed).uniform(0, 1, n)
-        approx = 0
-        for sample in samples:
-            approx += f(sample)
-        approx /= n
+        approx, _ = monte_carlo(cp.Uniform(0, 1), n, f)
         abs_errors.append(np.abs(approx - analytical_integral()))
     return abs_errors
 
@@ -57,41 +65,9 @@ def run_control_variates(
     
     # For the control variate method, the estimator changes!
     for n in Ns:
-        samples = np.random.default_rng(seed).uniform(0, 1, n)
-        fs = [f(sample) for sample in samples]
-        phi_1s = [phi_1(sample) for sample in samples]
-        phi_2s = [phi_2(sample) for sample in samples]
-        phi_3s = [phi_3(sample) for sample in samples]
-
-        f_bar = np.mean(fs)
-        phi_1_bar = np.mean(phi_1s)
-        phi_2_bar = np.mean(phi_2s)
-        phi_3_bar = np.mean(phi_3s)
-
-        # Need the optimal alpha values, see Tutorial 4, Task 3: alpha* = (pearsoncorr(f, phi) * sigma(f)) / sigma(phi)
-        # Therefore, need to estimate the Pearson correlation and the standard deviations
-        # Pearson correlation is the covariance of f and phi divided by the product of the standard deviations of f and phi
-        # 1. Compute the std of f and phi
-        sigma_f = np.std(fs)
-        sigma_phi_1 = np.std(phi_1s)
-        sigma_phi_2 = np.std(phi_2s)
-        sigma_phi_3 = np.std(phi_3s)
-        # 2. Compute the covariance of f and phi
-        covariance_f_phi_1 = np.cov(fs, phi_1s)[0][1]
-        covariance_f_phi_2 = np.cov(fs, phi_2s)[0][1]
-        covariance_f_phi_3 = np.cov(fs, phi_3s)[0][1]
-        # 3. Compute the Pearson correlation
-        pearson_correlation_f_phi_1 = covariance_f_phi_1 / (sigma_f * sigma_phi_1)
-        pearson_correlation_f_phi_2 = covariance_f_phi_2 / (sigma_f * sigma_phi_2)
-        pearson_correlation_f_phi_3 = covariance_f_phi_3 / (sigma_f * sigma_phi_3)
-        # 4. Compute the optimal alpha values
-        alpha_1 = (pearson_correlation_f_phi_1 * sigma_f) / sigma_phi_1
-        alpha_2 = (pearson_correlation_f_phi_2 * sigma_f) / sigma_phi_2
-        alpha_3 = (pearson_correlation_f_phi_3 * sigma_f) / sigma_phi_3
-
-        estimator_1 = f_bar + alpha_1 * (phi_1_expected - phi_1_bar)
-        estimator_2 = f_bar + alpha_2 * (phi_2_expected - phi_2_bar)
-        estimator_3 = f_bar + alpha_3 * (phi_3_expected - phi_3_bar)
+        estimator_1 = control_variates(cp.Uniform(0, 1), n, f, phi_1, phi_1_expected)
+        estimator_2 = control_variates(cp.Uniform(0, 1), n, f, phi_2, phi_2_expected)
+        estimator_3 = control_variates(cp.Uniform(0, 1), n, f, phi_3, phi_3_expected)
 
         abs_errors_1.append(np.abs(estimator_1 - analytical_integral()))
         abs_errors_2.append(np.abs(estimator_2 - analytical_integral()))
@@ -113,14 +89,14 @@ def run_importance_sampling(
     abs_errors_1 = []
     abs_errors_2 = []
 
+    q1 = cp.Beta(alpha_1, beta_1)
+    q2 = cp.Beta(alpha_2, beta_2)
+
     # Estimator is still based on sampling f but then weighting by importance weights, computed as p(x) / q(x)
     for n in Ns:
-        samples_1 = cp.Beta(alpha_1, beta_1).sample(n)
-        samples_2 = cp.Beta(alpha_2, beta_2).sample(n)
-
         # Compute the estimators; each estimator is the mean of the samples evaluated in f and "importance weighted"
-        estimator_1 = np.mean([f(sample) * cp.Uniform(0, 1).pdf(sample) / cp.Beta(alpha_1, beta_1).pdf(sample) for sample in samples_1])
-        estimator_2 = np.mean([f(sample) * cp.Uniform(0, 1).pdf(sample) / cp.Beta(alpha_2, beta_2).pdf(sample) for sample in samples_2])
+        estimator_1 = importance_sampling(cp.Uniform(0, 1), q1, n, f)
+        estimator_2 = importance_sampling(cp.Uniform(0, 1), q2, n, f)
 
         # Gather the absolute errors
         abs_errors_1.append(np.abs(estimator_1 - analytical_integral()))
