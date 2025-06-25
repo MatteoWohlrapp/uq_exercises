@@ -3,7 +3,7 @@ import chaospy as cp
 from scipy.integrate import odeint
 from matplotlib.pyplot import *
 import time
-import matplotlib.pyplot as plt      # ← added (alias for plotting)
+import matplotlib.pyplot as plt  
 
 from typing import Union, Optional
 import numpy.typing as npt
@@ -12,12 +12,6 @@ import numpy.typing as npt
 
 # TODO: DONE. Fix seed
 np.random.seed(42)
-
-# make the script run under both Py2 / Py3
-try:
-    xrange
-except NameError:
-    xrange = range
 
 # to use the odeint function, we need to transform the second order differential equation
 # into a system of two linear equations
@@ -95,7 +89,7 @@ if __name__ == '__main__':
     var_ref = mc_vals.var(ddof=0)
 
     # perform polynomial chaos approximation + the pseudo-spectral
-    for h in xrange(len(N)):
+    for h in range(len(N)):
 
         # TODO: create N[h] orthogonal polynomials using chaospy
         poly = cp.orth_ttr(N[h]-1, distr_w)          # length N[h]
@@ -151,7 +145,7 @@ if __name__ == '__main__':
     plt.title('Relative Error in Expectation vs Truncation Order')
     plt.legend()
     plt.grid(True, which="both")
-    plt.show()
+    plt.savefig('relative_error_expectation.png')
 
     # Plot relative error in variance
     plt.figure(figsize=(10,6))
@@ -163,7 +157,7 @@ if __name__ == '__main__':
     plt.title('Relative Error in Variance vs Truncation Order')
     plt.legend()
     plt.grid(True, which="both")
-    plt.show()
+    plt.savefig('relative_error_variance.png')
 
     # Plot runtime comparison
     plt.figure(figsize=(10,6))
@@ -174,4 +168,4 @@ if __name__ == '__main__':
     plt.title('Runtime vs Truncation Order')
     plt.legend()
     plt.grid(True, which="both")
-    plt.show()
+    plt.savefig('runtime_comparison.png')
