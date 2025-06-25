@@ -80,13 +80,9 @@ if __name__ == '__main__':
     time_m = np.zeros(len(N))
     time_cp_arr = np.zeros(len(N))
 
-    # high-accuracy Monte-Carlo reference
-    n_mc = 100000
-    mc_w = distr_w.sample(n_mc)
-    mc_vals = np.array([discretize_oscillator_odeint(model, atol, rtol, init_cond,
-                                                     (c, k, f, float(w)), t_grid, t_interest) for w in mc_w])
-    exp_ref = mc_vals.mean()
-    var_ref = mc_vals.var(ddof=0)
+    # from assignment
+    exp_ref = -0.43893703
+    var_ref = 0.00019678
 
     # perform polynomial chaos approximation + the pseudo-spectral
     for h in range(len(N)):
@@ -137,8 +133,8 @@ if __name__ == '__main__':
 
     # Plot relative error in expectation
     plt.figure(figsize=(10,6))
-    plt.plot(N, rel_err_exp_m, 'o-', label='Manual')
-    plt.plot(N, rel_err_exp_cp, 's--', label='ChaosPy')
+    plt.plot(np.array(N) - 1, rel_err_exp_m, 'o-', label='Manual')
+    plt.plot(np.array(N) - 1, rel_err_exp_cp, 's--', label='ChaosPy')
     plt.yscale('log')
     plt.xlabel('Truncation Order N')
     plt.ylabel('Relative Error in Expectation')
@@ -149,8 +145,8 @@ if __name__ == '__main__':
 
     # Plot relative error in variance
     plt.figure(figsize=(10,6))
-    plt.plot(N, rel_err_var_m, 'o-', label='Manual')
-    plt.plot(N, rel_err_var_cp, 's--', label='ChaosPy')
+    plt.plot(np.array(N) - 1, rel_err_var_m, 'o-', label='Manual')
+    plt.plot(np.array(N) - 1, rel_err_var_cp, 's--', label='ChaosPy')
     plt.yscale('log')
     plt.xlabel('Truncation Order N')
     plt.ylabel('Relative Error in Variance')
@@ -161,8 +157,8 @@ if __name__ == '__main__':
 
     # Plot runtime comparison
     plt.figure(figsize=(10,6))
-    plt.plot(N, time_m, 'o-', label='Manual')
-    plt.plot(N, time_cp_arr, 's--', label='ChaosPy')
+    plt.plot(np.array(N) - 1, time_m, 'o-', label='Manual')
+    plt.plot(np.array(N) - 1, time_cp_arr, 's--', label='ChaosPy')
     plt.xlabel('Truncation Order N')
     plt.ylabel('Seconds')
     plt.title('Runtime vs Truncation Order')
