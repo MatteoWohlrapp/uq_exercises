@@ -4,7 +4,6 @@ import numpy.typing as npt
 
 from utils.wiener import WienerProcess
 
-
 def plot_eigenpairs(
     wiener: WienerProcess, n_terms: int, t_grid: npt.NDArray[np.float64]
 ) -> plt.Figure:
@@ -21,12 +20,12 @@ def plot_eigenpairs(
 
 if __name__ == "__main__":
     # TODO: set the configuration.
-    T = None
-    n_points = None
+    T = 1.0
+    n_points = 1000
     t_grid = np.linspace(0, T, n_points)
-    Ms = [None]
-    seed = None
-    n_samples = None
+    Ms = [10, 100, 1000]
+    seed = 42
+    n_samples = 3
     rng = np.random.default_rng(seed)
 
     # TODO: generate one realization of the Wiener process using the
